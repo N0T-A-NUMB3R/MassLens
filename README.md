@@ -1,8 +1,6 @@
 # MassLens
 
 [![NuGet](https://img.shields.io/nuget/v/MassLens?color=blue&logo=nuget)](https://www.nuget.org/packages/MassLens)
-[![NuGet Downloads](https://img.shields.io/nuget/dt/MassLens?color=blue)](https://www.nuget.org/packages/MassLens)
-[![Build](https://img.shields.io/github/actions/workflow/status/N0T-A-NUMB3R/MassLens/build.yml?branch=main&logo=github)](https://github.com/N0T-A-NUMB3R/MassLens/actions)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 [![.NET](https://img.shields.io/badge/.NET-8%2B-512BD4&logo=dotnet)](https://dotnet.microsoft.com)
 [![MassTransit](https://img.shields.io/badge/MassTransit-8.x-purple)](https://masstransit.io)
