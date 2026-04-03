@@ -13,9 +13,11 @@
     <PackageProjectUrl>https://github.com/your-org/masslens</PackageProjectUrl>
     <RepositoryUrl>https://github.com/your-org/masslens</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
-    <Description>Embedded real-time dashboard for MassTransit v8. Zero external dependencies. Add two lines to Program.cs and get a full monitoring UI at /masslens.</Description>
+    <Description>The missing dashboard for MassTransit. Zero dependencies. A few lines of code. Full visibility.
+
+MassLens is an embedded real-time monitoring dashboard for MassTransit v8 applications. It ships as a single NuGet package — no Redis, no SQL Server, no external services required. Tested with RabbitMQ.</Description>
     <PackageTags>masstransit;dashboard;monitoring;rabbitmq;azureservicebus;messaging;observability</PackageTags>
-    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageReadmeFile>README.nuget.md</PackageReadmeFile>
     <PackageIcon>icon.png</PackageIcon>
     <PackageReleaseNotes>Initial release.</PackageReleaseNotes>
     <Nullable>enable</Nullable>
@@ -34,7 +36,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="..\..\README.md" Pack="true" PackagePath="\" />
+    <None Include="..\..\README.nuget.md" Pack="true" PackagePath="\" />
     <None Include="..\..\icon.png" Pack="true" PackagePath="\" Condition="Exists('..\..\icon.png')" />
   </ItemGroup>
 
