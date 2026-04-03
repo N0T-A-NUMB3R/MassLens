@@ -181,10 +181,14 @@ Inject payload:
 
 MassLens observes at the MassTransit abstraction layer — it works with any transport:
 
-- RabbitMQ
-- Azure Service Bus
-- Amazon SQS
-- In-Memory (tests)
+| Transport | Status |
+|---|---|
+| RabbitMQ | ✅ Tested |
+| Azure Service Bus | ⚙️ Compatible (untested) |
+| Amazon SQS | ⚙️ Compatible (untested) |
+| In-Memory | ✅ Tested (used by demo) |
+
+> MassLens has been manually tested end-to-end against **RabbitMQ 3.x** with MassTransit 8.x. All observer hooks (consume, publish, send, saga transitions) fire correctly under real broker load.
 
 ---
 
