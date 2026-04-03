@@ -1,0 +1,1541 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>MassLens — MassTransit Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+
+/* ── DARK THEME (default) ── */
+:root{
+  --bg:#080c10;
+  --surface:#0d1219;
+  --surface2:#111823;
+  --surface3:#162030;
+  --border:#1e2d3d;
+  --border2:#243545;
+  --text:#cdd9e5;
+  --muted:#6a8097;
+  --dim:#3d5166;
+
+  --amber:#f59e0b;
+  --amber-dim:#f59e0b14;
+  --amber-text:#fbbf24;
+  --amber-bright:#fcd34d;
+
+  --green:#22d3a0;
+  --green-dim:#22d3a014;
+  --green-text:#34d399;
+
+  --blue:#38bdf8;
+  --blue-dim:#38bdf814;
+  --blue-text:#7dd3fc;
+
+  --red:#f87171;
+  --red-dim:#f8717114;
+  --red-text:#fca5a5;
+
+  --purple:#a78bfa;
+  --purple-dim:#a78bfa14;
+  --purple-text:#c4b5fd;
+
+  --cyan:#22d3ee;
+  --cyan-dim:#22d3ee14;
+  --cyan-text:#67e8f9;
+
+  --yellow:#f59e0b;
+  --yellow-dim:#f59e0b14;
+  --yellow-text:#fbbf24;
+
+  --hm0:#0d1520;
+
+  /* grid line texture */
+  --grid-line:rgba(30,45,61,0.6);
+}
+
+/* ── LIGHT THEME ── */
+body.light{
+  --bg:#f0f4f8;
+  --surface:#ffffff;
+  --surface2:#e8eef5;
+  --surface3:#dde5ef;
+  --border:#c8d5e2;
+  --border2:#b5c7d8;
+  --text:#1a2332;
+  --muted:#4a6278;
+  --dim:#8aa0b4;
+
+  --amber:#b45309;
+  --amber-dim:#b4530912;
+  --amber-text:#92400e;
+  --amber-bright:#d97706;
+
+  --green:#065f46;
+  --green-dim:#065f4612;
+  --green-text:#047857;
+
+  --blue:#0369a1;
+  --blue-dim:#0369a112;
+  --blue-text:#0284c7;
+
+  --red:#b91c1c;
+  --red-dim:#b91c1c12;
+  --red-text:#dc2626;
+
+  --purple:#6d28d9;
+  --purple-dim:#6d28d912;
+  --purple-text:#7c3aed;
+
+  --cyan:#0e7490;
+  --cyan-dim:#0e749012;
+  --cyan-text:#0891b2;
+
+  --yellow:#b45309;
+  --yellow-dim:#b4530912;
+  --yellow-text:#92400e;
+
+  --hm0:#dde5ef;
+  --grid-line:rgba(180,200,220,0.4);
+}
+
+/* ── BASE ── */
+body{
+  background:var(--bg);
+  color:var(--text);
+  font-family:'IBM Plex Sans',system-ui,sans-serif;
+  min-height:100vh;
+  font-size:13px;
+  line-height:1.5;
+  /* subtle dot-grid background */
+  background-image:radial-gradient(circle, var(--grid-line) 1px, transparent 1px);
+  background-size:28px 28px;
+}
+
+/* ── TOPBAR ── */
+.topbar{
+  background:linear-gradient(90deg, var(--surface) 0%, var(--surface2) 100%);
+  border-bottom:1px solid var(--border);
+  padding:0 24px;
+  height:52px;
+  display:flex;
+  align-items:center;
+  gap:14px;
+  position:sticky;
+  top:0;
+  z-index:100;
+  backdrop-filter:blur(12px);
+  -webkit-backdrop-filter:blur(12px);
+}
+/* left accent stripe */
+.topbar::before{
+  content:'';
+  position:absolute;
+  left:0;top:0;bottom:0;
+  width:3px;
+  background:linear-gradient(180deg,var(--amber) 0%,var(--cyan) 100%);
+}
+.logo{
+  font-family:'IBM Plex Mono',monospace;
+  font-weight:600;
+  font-size:14px;
+  letter-spacing:.04em;
+  display:flex;
+  align-items:center;
+  gap:10px;
+  color:var(--text);
+}
+.logo-mark{
+  width:26px;height:26px;
+  display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;
+}
+.pulse{
+  width:7px;height:7px;border-radius:50%;
+  background:var(--green);
+  box-shadow:0 0 0 0 var(--green);
+  animation:sonar 2.4s ease-out infinite;
+  flex-shrink:0;
+}
+@keyframes sonar{
+  0%{box-shadow:0 0 0 0 rgba(34,211,160,.6)}
+  70%{box-shadow:0 0 0 8px rgba(34,211,160,0)}
+  100%{box-shadow:0 0 0 0 rgba(34,211,160,0)}
+}
+.badge{
+  font-family:'IBM Plex Mono',monospace;
+  font-size:10px;
+  padding:2px 8px;
+  border-radius:3px;
+  border:1px solid;
+  letter-spacing:.02em;
+}
+.badge-blue{background:var(--blue-dim);border-color:var(--blue);color:var(--blue-text);opacity:.8}
+.badge-green{background:var(--green-dim);border-color:var(--green);color:var(--green-text);opacity:.9}
+.badge-yellow{background:var(--amber-dim);border-color:var(--amber);color:var(--amber-text)}
+.topbar-right{margin-left:auto;display:flex;align-items:center;gap:10px}
+.env-pill{
+  font-family:'IBM Plex Mono',monospace;
+  font-size:10px;
+  padding:3px 10px;
+  border-radius:3px;
+  background:var(--green-dim);
+  border:1px solid var(--green);
+  color:var(--green-text);
+  letter-spacing:.04em;
+}
+.theme-btn{
+  background:var(--surface2);
+  border:1px solid var(--border2);
+  border-radius:5px;
+  padding:4px 10px;
+  cursor:pointer;
+  font-size:11px;
+  color:var(--muted);
+  font-family:'IBM Plex Mono',monospace;
+  transition:all .2s;
+}
+.theme-btn:hover{border-color:var(--amber);color:var(--amber-text)}
+
+/* ── TABS ── */
+.tabs{
+  background:var(--surface);
+  border-bottom:1px solid var(--border);
+  padding:0 24px;
+  display:flex;
+  gap:0;
+}
+.tab{
+  padding:14px 18px;
+  font-size:11px;
+  font-family:'IBM Plex Mono',monospace;
+  font-weight:500;
+  letter-spacing:.06em;
+  color:var(--dim);
+  cursor:pointer;
+  border-bottom:2px solid transparent;
+  transition:all .2s;
+  display:flex;
+  align-items:center;
+  gap:7px;
+  white-space:nowrap;
+  text-transform:uppercase;
+  position:relative;
+}
+.tab:hover{color:var(--muted)}
+.tab.active{
+  color:var(--amber-text);
+  border-bottom-color:var(--amber);
+}
+.tab-count{
+  font-size:10px;
+  padding:1px 6px;
+  border-radius:3px;
+  background:var(--surface2);
+  border:1px solid var(--border);
+}
+.tab-count.red{background:var(--red-dim);color:var(--red-text);border-color:var(--red)}
+
+/* ── LAYOUT ── */
+.page{display:none;padding:20px 24px}
+.page.active{display:block}
+
+/* ── GRID HELPERS ── */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px}
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+.g5{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+.gcol{display:grid;gap:16px}
+.grow{display:grid;grid-template-columns:2fr 1fr;gap:16px}
+.grow2{display:grid;grid-template-columns:3fr 2fr;gap:16px}
+.mb{margin-bottom:16px}
+
+/* ── CARD ── */
+.card{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:8px;
+  padding:18px;
+  position:relative;
+  transition:border-color .2s, box-shadow .2s;
+}
+.card::before{
+  content:'';
+  position:absolute;
+  inset:0;
+  border-radius:8px;
+  background:linear-gradient(135deg,rgba(245,158,11,.03) 0%,transparent 60%);
+  pointer-events:none;
+}
+.card:hover{
+  border-color:var(--border2);
+  box-shadow:0 4px 24px rgba(0,0,0,.25), 0 0 0 1px rgba(245,158,11,.08);
+}
+.card-title{
+  font-family:'IBM Plex Mono',monospace;
+  font-size:9px;
+  color:var(--dim);
+  text-transform:uppercase;
+  letter-spacing:.12em;
+  margin-bottom:14px;
+  display:flex;
+  align-items:center;
+  gap:7px;
+}
+.dot{width:5px;height:5px;border-radius:50%;flex-shrink:0}
+.dot-green{background:var(--green);box-shadow:0 0 6px rgba(34,211,160,.5)}
+.dot-blue{background:var(--blue);box-shadow:0 0 6px rgba(56,189,248,.5)}
+.dot-yellow{background:var(--amber);box-shadow:0 0 6px rgba(245,158,11,.5)}
+.dot-red{background:var(--red);box-shadow:0 0 6px rgba(248,113,113,.5)}
+.dot-purple{background:var(--purple);box-shadow:0 0 6px rgba(167,139,250,.5)}
+.dot-cyan{background:var(--cyan);box-shadow:0 0 6px rgba(34,211,238,.5)}
+
+/* ── KPI ── */
+.kpi-val{
+  font-family:'IBM Plex Mono',monospace;
+  font-size:28px;
+  font-weight:600;
+  line-height:1;
+  letter-spacing:-.01em;
+}
+.kpi-sub{
+  font-size:10px;
+  color:var(--dim);
+  margin-top:6px;
+  font-family:'IBM Plex Mono',monospace;
+  letter-spacing:.02em;
+}
+.c-green{color:var(--green-text)}
+.c-blue{color:var(--blue-text)}
+.c-yellow{color:var(--amber-text)}
+.c-red{color:var(--red-text)}
+.c-purple{color:var(--purple-text)}
+.c-cyan{color:var(--cyan-text)}
+.c-muted{color:var(--muted)}
+.up{color:var(--green-text)}
+.down{color:var(--red-text)}
+
+/* ── HEALTH SCORE RING ── */
+.score-wrap{display:flex;align-items:center;gap:14px}
+.score-ring{position:relative;width:64px;height:64px;flex-shrink:0}
+.score-ring svg{transform:rotate(-90deg)}
+.score-ring .score-num{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:600;font-family:'IBM Plex Mono',monospace}
+.score-list{flex:1;display:flex;flex-direction:column;gap:6px}
+.score-item{display:flex;align-items:center;gap:8px;font-size:11px}
+.score-bar-wrap{flex:1;background:var(--surface2);border-radius:2px;height:3px;overflow:hidden}
+.score-bar{height:3px;border-radius:2px;transition:width .6s ease}
+
+/* ── CONSUMER TABLE ── */
+.ctable{width:100%;border-collapse:collapse}
+.ctable th{
+  text-align:left;
+  color:var(--dim);
+  font-weight:500;
+  padding:6px 10px;
+  border-bottom:1px solid var(--border);
+  font-family:'IBM Plex Mono',monospace;
+  font-size:9px;
+  text-transform:uppercase;
+  letter-spacing:.1em;
+}
+.ctable td{
+  padding:8px 10px;
+  border-bottom:1px solid rgba(30,45,61,.4);
+  vertical-align:middle;
+}
+.ctable tr:last-child td{border-bottom:none}
+.ctable tr:hover td{background:rgba(245,158,11,.03)}
+.mono{font-family:'IBM Plex Mono',monospace;font-size:11px}
+.pill{
+  display:inline-flex;
+  align-items:center;
+  gap:3px;
+  padding:2px 8px;
+  border-radius:3px;
+  font-size:10px;
+  font-weight:500;
+  font-family:'IBM Plex Mono',monospace;
+  letter-spacing:.03em;
+}
+.pill-green{background:var(--green-dim);color:var(--green-text);border:1px solid rgba(34,211,160,.2)}
+.pill-red{background:var(--red-dim);color:var(--red-text);border:1px solid rgba(248,113,113,.2)}
+.pill-yellow{background:var(--amber-dim);color:var(--amber-text);border:1px solid rgba(245,158,11,.2)}
+.pill-blue{background:var(--blue-dim);color:var(--blue-text);border:1px solid rgba(56,189,248,.2)}
+.pill-purple{background:var(--purple-dim);color:var(--purple-text);border:1px solid rgba(167,139,250,.2)}
+
+/* ── MINI BAR ── */
+.mini-bar-wrap{background:var(--surface3);border-radius:2px;height:4px;overflow:hidden;min-width:60px}
+.mini-bar{height:4px;border-radius:2px;background:linear-gradient(90deg,var(--amber),var(--cyan));transition:width .5s}
+
+/* ── SAGA FLOW ── */
+.saga-flow{display:flex;align-items:center;gap:0;overflow-x:auto;padding:10px 0}
+.saga-node{
+  background:var(--surface2);
+  border:1px solid var(--border);
+  border-radius:6px;
+  padding:14px 18px;
+  text-align:center;
+  min-width:110px;
+  flex-shrink:0;
+  cursor:pointer;
+  transition:all .2s;
+}
+.saga-node:hover{border-color:var(--border2)}
+.saga-node.active{border-color:var(--amber);background:rgba(245,158,11,.06);box-shadow:0 0 16px rgba(245,158,11,.1)}
+.saga-node.fault{border-color:var(--red);background:rgba(248,113,113,.06)}
+.saga-node.final{border-color:var(--green);background:rgba(34,211,160,.06)}
+.saga-node-name{
+  font-family:'IBM Plex Mono',monospace;
+  font-size:8px;
+  color:var(--dim);
+  margin-bottom:8px;
+  text-transform:uppercase;
+  letter-spacing:.1em;
+}
+.saga-node-count{
+  font-family:'IBM Plex Mono',monospace;
+  font-size:24px;
+  font-weight:600;
+}
+.saga-node-sub{font-size:9px;color:var(--dim);margin-top:4px}
+.saga-arrow{display:flex;align-items:center;padding:0 8px;color:var(--dim);font-size:16px;flex-shrink:0}
+.saga-arrow.animated{animation:flowArrow 1.5s ease-in-out infinite}
+@keyframes flowArrow{0%,100%{opacity:.2;transform:translateX(-2px)}50%{opacity:1;color:var(--amber-text);transform:translateX(2px)}}
+.saga-fault-branch{display:flex;flex-direction:column;align-items:center;gap:4px;padding:0 8px}
+.saga-fault-arrow{color:var(--red-text);font-size:12px}
+
+/* ── FLAME GRAPH ── */
+.flame{display:flex;flex-direction:column;gap:4px}
+.flame-row{display:flex;align-items:center;gap:10px}
+.flame-label{
+  font-family:'IBM Plex Mono',monospace;
+  font-size:9px;
+  color:var(--muted);
+  width:160px;
+  text-align:right;
+  flex-shrink:0;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+.flame-track{
+  flex:1;
+  background:var(--surface2);
+  border-radius:3px;
+  height:20px;
+  position:relative;
+  overflow:hidden;
+  border:1px solid var(--border);
+}
+.flame-bar{
+  position:absolute;height:100%;border-radius:3px;
+  display:flex;align-items:center;padding-left:8px;
+  font-family:'IBM Plex Mono',monospace;
+  font-size:9px;font-weight:600;
+  white-space:nowrap;transition:width .4s;
+}
+.flame-root{background:linear-gradient(90deg,rgba(56,189,248,.7),rgba(56,189,248,.4))}
+.flame-child1{background:linear-gradient(90deg,rgba(34,211,160,.7),rgba(34,211,160,.4))}
+.flame-child2{background:linear-gradient(90deg,rgba(245,158,11,.7),rgba(245,158,11,.4))}
+.flame-child3{background:linear-gradient(90deg,rgba(167,139,250,.7),rgba(167,139,250,.4))}
+.flame-child4{background:linear-gradient(90deg,rgba(34,211,238,.7),rgba(34,211,238,.4))}
+
+/* ── HEATMAP ── */
+.heatmap{overflow-x:auto}
+.heatmap table{border-collapse:separate;border-spacing:2px;font-size:9px}
+.heatmap th{
+  color:var(--dim);font-weight:400;
+  padding:1px 2px;text-align:center;
+  font-family:'IBM Plex Mono',monospace;
+  white-space:nowrap;font-size:8px;
+}
+.heatmap td{width:20px;height:20px;border-radius:3px;text-align:center;vertical-align:middle}
+.heatmap .row-label{
+  color:var(--muted);text-align:right;padding-right:8px;
+  white-space:nowrap;font-size:9px;
+  font-family:'IBM Plex Mono',monospace;
+}
+.h0{background:var(--hm0,#0d1520)}
+.h1{background:#0d2e1f}
+.h2{background:#0d4429}
+.h3{background:#0e6b3a}
+.h4{background:#0d9349}
+.h5{background:#22d3a0}
+
+/* ── BUTTONS ── */
+.btn{
+  padding:5px 14px;
+  border-radius:5px;
+  font-family:'IBM Plex Mono',monospace;
+  font-size:10px;
+  font-weight:500;
+  cursor:pointer;
+  border:1px solid;
+  transition:all .15s;
+  letter-spacing:.04em;
+}
+.btn-red{background:var(--red-dim);color:var(--red-text);border-color:rgba(248,113,113,.2)}
+.btn-red:hover{background:rgba(248,113,113,.2)}
+.btn-blue{background:var(--blue-dim);color:var(--blue-text);border-color:rgba(56,189,248,.2)}
+.btn-blue:hover{background:rgba(56,189,248,.2)}
+.btn-green{background:var(--green-dim);color:var(--green-text);border-color:rgba(34,211,160,.2)}
+.btn-green:hover{background:rgba(34,211,160,.2)}
+.btn-muted{background:var(--surface2);color:var(--muted);border-color:var(--border)}
+.btn-muted:hover{border-color:var(--border2);color:var(--text)}
+.btn-yellow{background:var(--amber-dim);color:var(--amber-text);border-color:rgba(245,158,11,.2)}
+.btn-yellow:hover{background:rgba(245,158,11,.2)}
+
+/* ── RETRY WATERFALL ── */
+.waterfall{display:flex;flex-direction:column;gap:5px}
+.wf-row{display:flex;align-items:center;gap:8px;font-size:11px}
+.wf-num{color:var(--dim);width:20px;text-align:right;flex-shrink:0;font-family:'IBM Plex Mono',monospace}
+.wf-time{color:var(--dim);font-family:'IBM Plex Mono',monospace;font-size:10px;width:70px;flex-shrink:0}
+.wf-bar-wrap{flex:1;background:var(--surface2);border-radius:3px;height:14px;position:relative;border:1px solid var(--border)}
+.wf-bar{position:absolute;height:100%;border-radius:3px;display:flex;align-items:center;padding-left:6px;font-family:'IBM Plex Mono',monospace;font-size:9px;font-weight:600}
+.wf-ok{background:linear-gradient(90deg,rgba(34,211,160,.7),rgba(34,211,160,.4))}
+.wf-fail{background:linear-gradient(90deg,rgba(248,113,113,.7),rgba(248,113,113,.4))}
+.wf-delay{font-size:10px;color:var(--dim);width:60px;flex-shrink:0;font-family:'IBM Plex Mono',monospace}
+
+/* ── MSG SIZE HISTOGRAM ── */
+.histo{display:flex;align-items:flex-end;gap:4px;height:80px}
+.histo-bar-wrap{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px}
+.histo-bar{width:100%;background:var(--amber-dim);border:1px solid rgba(245,158,11,.2);border-radius:2px 2px 0 0;transition:height .5s;cursor:pointer}
+.histo-bar:hover{background:rgba(245,158,11,.2)}
+.histo-label{font-size:8px;color:var(--dim);white-space:nowrap;font-family:'IBM Plex Mono',monospace}
+.histo-val{font-size:9px;color:var(--amber-text);font-family:'IBM Plex Mono',monospace}
+
+/* ── TOPOLOGY ── */
+.topo{position:relative;min-height:220px;overflow:visible}
+.topo-node{
+  position:absolute;
+  padding:6px 14px;
+  border-radius:5px;
+  font-family:'IBM Plex Mono',monospace;
+  font-size:10px;
+  white-space:nowrap;
+  cursor:pointer;
+  transition:all .2s;
+}
+.topo-pub{background:rgba(56,189,248,.08);border:1px solid rgba(56,189,248,.25);color:var(--blue-text)}
+.topo-pub:hover{background:rgba(56,189,248,.15);border-color:var(--blue)}
+.topo-con{background:rgba(34,211,160,.08);border:1px solid rgba(34,211,160,.25);color:var(--green-text)}
+.topo-con:hover{background:rgba(34,211,160,.15);border-color:var(--green)}
+.topo-saga{background:rgba(167,139,250,.08);border:1px solid rgba(167,139,250,.25);color:var(--purple-text)}
+.topo-saga:hover{background:rgba(167,139,250,.15);border-color:var(--purple)}
+.topo-svg{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+
+/* ── LATENCY TABLE ── */
+.lat-row{display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid rgba(30,45,61,.5)}
+.lat-row:last-child{border-bottom:none}
+.lat-label{
+  font-family:'IBM Plex Mono',monospace;
+  font-size:9px;color:var(--dim);
+  width:80px;flex-shrink:0;
+  text-transform:uppercase;letter-spacing:.08em;
+}
+.lat-val{font-family:'IBM Plex Mono',monospace;font-size:14px;font-weight:600;width:70px}
+.lat-bar-wrap{flex:1;background:var(--surface2);border-radius:2px;height:4px}
+.lat-bar{height:4px;border-radius:2px}
+
+/* ── SCROLLBAR ── */
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
+::-webkit-scrollbar-thumb:hover{background:var(--muted)}
+
+/* ── SECTION HEADER ── */
+.section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.section-title{font-family:'IBM Plex Mono',monospace;font-size:9px;color:var(--dim);text-transform:uppercase;letter-spacing:.1em}
+.section-actions{display:flex;gap:8px;align-items:center}
+
+/* ── INPUT ── */
+.search-input{
+  background:var(--surface2);
+  border:1px solid var(--border);
+  border-radius:5px;
+  padding:6px 10px;
+  color:var(--text);
+  font-size:11px;
+  font-family:'IBM Plex Mono',monospace;
+  outline:none;
+  width:180px;
+  transition:border-color .2s;
+}
+.search-input:focus{border-color:var(--amber)}
+.search-input::placeholder{color:var(--dim)}
+
+/* ── STATUS LIVE ── */
+.status-live{
+  display:flex;align-items:center;gap:6px;
+  font-family:'IBM Plex Mono',monospace;
+  font-size:9px;color:var(--green-text);
+  letter-spacing:.06em;
+  text-transform:uppercase;
+}
+.status-live::before{
+  content:'';width:6px;height:6px;border-radius:50%;
+  background:var(--green);
+  animation:sonar 2.4s ease-out infinite;
+}
+
+/* ── TOPOLOGY LEGEND ── */
+.topo-legend{display:flex;gap:14px;margin-bottom:10px}
+.topo-leg-item{display:flex;align-items:center;gap:5px;font-size:10px;color:var(--muted);font-family:'IBM Plex Mono',monospace}
+.topo-leg-dot{width:8px;height:8px;border-radius:2px}
+
+/* ── AUDIT CSS (kept for data binding even though tab removed) ── */
+.audit-item{display:flex;align-items:flex-start;gap:10px;padding:8px 0;border-bottom:1px solid rgba(30,45,61,.3)}
+.audit-item:last-child{border-bottom:none}
+.audit-icon{width:28px;height:28px;border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0}
+.audit-info{flex:1}
+.audit-action{font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:600}
+.audit-detail{font-size:10px;color:var(--muted);margin-top:2px;font-family:'IBM Plex Mono',monospace}
+.audit-time{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--dim);white-space:nowrap}
+
+/* ── DLQ CSS (kept for any remaining references) ── */
+.dlq-actions{display:flex;gap:6px;margin-left:auto}
+.dlq-msg-time{font-size:10px;color:var(--dim);margin-left:auto;white-space:nowrap;font-family:'IBM Plex Mono',monospace}
+.dlq-msg-attempts{font-size:10px;color:var(--amber-text);font-family:'IBM Plex Mono',monospace}
+</style>
+</head>
+<body x-data="dashboard()" x-init="init()">
+
+<!-- TOPBAR -->
+<div class="topbar">
+  <div class="logo">
+    <div class="logo-mark"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none" width="22" height="22">
+      <rect x="8" y="38" width="34" height="7" rx="2" fill="rgba(56,189,248,0.15)" stroke="#38bdf8" stroke-width="1.4"/>
+      <rect x="8" y="28" width="34" height="7" rx="2" fill="rgba(56,189,248,0.15)" stroke="#38bdf8" stroke-width="1.4"/>
+      <rect x="8" y="18" width="34" height="7" rx="2" fill="rgba(56,189,248,0.15)" stroke="#38bdf8" stroke-width="1.4"/>
+      <line x1="12" y1="41.5" x2="24" y2="41.5" stroke="#38bdf8" stroke-width="1.2" stroke-linecap="round" opacity=".5"/>
+      <line x1="12" y1="31.5" x2="28" y2="31.5" stroke="#38bdf8" stroke-width="1.2" stroke-linecap="round" opacity=".5"/>
+      <line x1="12" y1="21.5" x2="26" y2="21.5" stroke="#38bdf8" stroke-width="1.2" stroke-linecap="round" opacity=".5"/>
+      <circle cx="41" cy="25" r="11.5" stroke="#f59e0b" stroke-width="2.4"/>
+      <circle cx="41" cy="25" r="8.5" fill="rgba(245,158,11,0.12)"/>
+      <line x1="49.5" y1="33.5" x2="57" y2="41" stroke="#f59e0b" stroke-width="2.8" stroke-linecap="round"/>
+      <line x1="41" y1="20" x2="41" y2="30" stroke="#fcd34d" stroke-width="1.2" stroke-linecap="round" opacity=".7"/>
+      <line x1="36" y1="25" x2="46" y2="25" stroke="#fcd34d" stroke-width="1.2" stroke-linecap="round" opacity=".7"/>
+    </svg></div>
+    MassLens
+    <div class="pulse" style="margin-left:2px"></div>
+  </div>
+  <span class="badge badge-blue">v1.0.0</span>
+  <span class="badge badge-green" x-text="msgPerSec + ' msg/s'"></span>
+  <span class="badge badge-yellow" x-text="busInstances + ' bus'"></span>
+  <div class="topbar-right">
+    <span class="status-live" x-show="sseConnected">live</span>
+    <span style="display:flex;align-items:center;gap:5px;font-family:'IBM Plex Mono',monospace;font-size:9px;color:var(--red-text);letter-spacing:.06em;text-transform:uppercase" x-show="!sseConnected">&#9679; reconnecting</span>
+    <span class="env-pill">DEV</span>
+    <button class="theme-btn" @click="exportSnapshot()" title="Download snapshot JSON">&#8595; export</button>
+    <button class="theme-btn" @click="darkMode=!darkMode; document.body.classList.toggle('light', !darkMode)">
+      <span x-text="darkMode ? '◑ light' : '◐ dark'"></span>
+    </button>
+  </div>
+</div>
+
+<!-- TABS -->
+<div class="tabs">
+  <div class="tab" :class="tab==='overview'?'active':''" @click="tab='overview'">📊 Overview</div>
+  <div class="tab" :class="tab==='sagas'?'active':''" @click="tab='sagas'">🔄 Saga Flow</div>
+  <div class="tab" :class="tab==='timeline'?'active':''" @click="tab='timeline'">⏱ Timeline</div>
+
+  <div class="tab" :class="tab==='topology'?'active':''" @click="tab='topology'">🗺 Topology</div>
+  <div class="tab" :class="tab==='analytics'?'active':''" @click="tab='analytics'">📈 Analytics</div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     TAB: OVERVIEW
+════════════════════════════════════════════════════ -->
+<div class="page" :class="tab==='overview'?'active':''">
+
+  <!-- KPI ROW -->
+  <div class="g5 mb">
+    <div class="card">
+      <div class="card-title"><span class="dot dot-blue"></span>Throughput</div>
+      <div class="kpi-val c-blue" x-text="msgPerSec + '/s'"></div>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="dot dot-green"></span>Consumed today</div>
+      <div class="kpi-val c-green" x-text="totalConsumed.toLocaleString()"></div>
+      <div class="kpi-sub">+<span x-text="msgPerSec * 3600"></span>/hr est.</div>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="dot dot-purple"></span>Published</div>
+      <div class="kpi-val c-purple" x-text="totalPublished.toLocaleString()"></div>
+      <div class="kpi-sub">Sent: <span x-text="totalSent.toLocaleString()"></span></div>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="dot dot-yellow"></span>Faulted / Retry</div>
+      <div class="kpi-val c-yellow" x-text="totalFailed"></div>
+    </div>
+
+  </div>
+
+  <!-- CHART + LATENCY -->
+  <div class="grow mb">
+    <div class="card">
+      <div class="card-title"><span class="dot dot-blue"></span>Throughput — last 60s
+        <span class="status-live" style="margin-left:auto">live</span>
+      </div>
+      <canvas id="throughputChart" height="90"></canvas>
+    </div>
+    <div class="card">
+      <div class="card-title">
+        <span class="dot dot-red"></span>Error Rate % — last 60s
+        <span class="status-live" style="margin-left:auto">live</span>
+        <span style="font-size:10px;color:var(--muted);margin-left:8px">current: <span :class="errorRateCurrent>5?'c-red':errorRateCurrent>1?'c-yellow':'c-green'" x-text="errorRateCurrent.toFixed(1)+'%'"></span></span>
+      </div>
+      <canvas id="errorRateChart" height="70"></canvas>
+    </div>
+    <div class="gcol">
+      <div class="card">
+        <div class="card-title"><span class="dot dot-cyan"></span>Latency Percentiles</div>
+        <div>
+          <div class="lat-row">
+            <span class="lat-label">Average</span>
+            <span class="lat-val c-green" x-text="lat.avg + 'ms'"></span>
+            <div class="lat-bar-wrap"><div class="lat-bar" :style="'width:'+Math.min(100,lat.avg/3)+'%;background:var(--green)'"></div></div>
+          </div>
+          <div class="lat-row">
+            <span class="lat-label">P50</span>
+            <span class="lat-val c-blue" x-text="lat.p50 + 'ms'"></span>
+            <div class="lat-bar-wrap"><div class="lat-bar" :style="'width:'+Math.min(100,lat.p50/3)+'%;background:var(--blue)'"></div></div>
+          </div>
+          <div class="lat-row">
+            <span class="lat-label">P95</span>
+            <span class="lat-val c-yellow" x-text="lat.p95 + 'ms'"></span>
+            <div class="lat-bar-wrap"><div class="lat-bar" :style="'width:'+Math.min(100,lat.p95/3)+'%;background:var(--yellow)'"></div></div>
+          </div>
+          <div class="lat-row">
+            <span class="lat-label">P99</span>
+            <span class="lat-val c-red" x-text="lat.p99 + 'ms'"></span>
+            <div class="lat-bar-wrap"><div class="lat-bar" :style="'width:'+Math.min(100,lat.p99/3)+'%;background:var(--red)'"></div></div>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title"><span class="dot dot-green"></span>Message Status</div>
+        <canvas id="statusChart" height="90" style="max-width:50%;border-radius:50%;margin:0 auto;display:block"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- CONSUMER TABLE + HEALTH SCORE -->
+  <div class="grow2">
+    <div class="card">
+      <div class="section-header">
+        <div class="card-title" style="margin-bottom:0"><span class="dot dot-purple"></span>Consumer Inventory</div>
+        <input class="search-input" placeholder="🔍 Filter consumers..." />
+      </div>
+      <table class="ctable">
+        <thead>
+          <tr>
+            <th>Consumer</th><th>Status</th><th>Load</th><th>Rate</th><th>P95</th><th>Score</th><th>Instances</th>
+          </tr>
+        </thead>
+        <tbody>
+          <template x-for="c in consumers" :key="c.name">
+            <tr>
+              <td><span class="mono" x-text="c.name"></span></td>
+              <td><span class="pill" :class="c.score>=80?'pill-green':c.score>=50?'pill-yellow':'pill-red'" x-text="c.score>=80?'Healthy':c.score>=50?'Degraded':'Critical'"></span></td>
+              <td>
+                <div style="display:flex;align-items:center;gap:6px">
+                  <div class="mini-bar-wrap" style="width:70px"><div class="mini-bar" :style="'width:'+c.load+'%'"></div></div>
+                  <span style="font-size:10px;color:var(--muted)" x-text="c.load+'%'"></span>
+                </div>
+              </td>
+              <td><span class="c-blue" x-text="c.rate+'/s'"></span></td>
+              <td><span :class="c.p95>200?'c-red':c.p95>100?'c-yellow':'c-green'" x-text="c.p95+'ms'"></span></td>
+              <td>
+                <span class="pill" :class="c.score>=80?'pill-green':c.score>=50?'pill-yellow':'pill-red'" x-text="c.score"></span>
+              </td>
+              <td><span class="c-muted" x-text="c.instances+'x'"></span></td>
+            </tr>
+          </template>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="gcol">
+      <div class="card">
+        <div class="card-title"><span class="dot dot-green"></span>Consumer Health Score</div>
+        <div class="score-list">
+          <template x-for="c in consumers" :key="c.name">
+            <div class="score-item">
+              <span class="mono" style="width:150px;font-size:10px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" x-text="c.name"></span>
+              <div class="score-bar-wrap">
+                <div class="score-bar" :style="'width:'+c.score+'%;background:'+(c.score>=80?'var(--green)':c.score>=50?'var(--yellow)':'var(--red)')"></div>
+              </div>
+              <span style="font-size:10px;font-weight:700;width:28px;text-align:right" :class="c.score>=80?'c-green':c.score>=50?'c-yellow':'c-red'" x-text="c.score"></span>
+            </div>
+          </template>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title"><span class="dot dot-yellow"></span>Throughput Predictor</div>
+        <canvas id="predictorChart" height="80"></canvas>
+        <div style="font-size:10px;color:var(--muted);margin-top:6px">📈 +2h projection based on historical patterns</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     TAB: SAGA FLOW
+════════════════════════════════════════════════════ -->
+<div class="page" :class="tab==='sagas'?'active':''">
+  <div class="g2 mb">
+    <div class="card" style="grid-column:1/-1">
+      <div class="card-title"><span class="dot dot-purple"></span>Saga Flow Diagram
+        <span x-show="sagaList.length > 0" x-text="'— ' + sagaList[0]?.name" style="color:var(--muted);margin-left:4px;font-size:11px"></span>
+        <span class="status-live" style="margin-left:auto">live transitions</span>
+      </div>
+      <div x-show="sagaList.length === 0" style="padding:24px;text-align:center;color:var(--muted);font-size:11px">
+        Waiting for saga traffic...
+      </div>
+      <div x-show="sagaList.length > 0" class="saga-flow" style="flex-wrap:wrap">
+        <template x-for="(entry, idx) in Object.entries(saga)" :key="entry[0]">
+          <div style="display:flex;align-items:center">
+            <div x-show="idx > 0" class="saga-arrow animated">→</div>
+            <div class="saga-node" :class="entry[1] > 0 ? 'active' : ''">
+              <div class="saga-node-name" x-text="entry[0]"></div>
+              <div class="saga-node-count c-blue" x-text="entry[1]"></div>
+              <div class="saga-node-sub">instances</div>
+            </div>
+          </div>
+        </template>
+      </div>
+    </div>
+  </div>
+
+  <div class="g2">
+    <div class="card">
+      <div class="card-title"><span class="dot dot-purple"></span>Saga Drill-down — by CorrelationId</div>
+      <div style="display:flex;gap:8px;margin-bottom:12px">
+        <input class="search-input" style="flex:1" placeholder="🔍 Search CorrelationId..." />
+        <button class="btn btn-blue">Search</button>
+      </div>
+      <table class="ctable">
+        <thead><tr><th>CorrelationId</th><th>State</th><th>Created</th><th>Last update</th><th>Actions</th></tr></thead>
+        <tbody>
+          <template x-for="inst in sagaInstances" :key="inst.correlationId">
+            <tr>
+              <td><span class="mono c-cyan" x-text="inst.correlationId.slice(0,12)+'...'"></span></td>
+              <td><span class="pill" :class="inst.state==='Final'||inst.state==='Completed'?'pill-green':inst.state?.toLowerCase().includes('fault')?'pill-red':'pill-yellow'" x-text="inst.state"></span></td>
+              <td colspan="2"><span style="font-size:10px;color:var(--dim)" x-text="fmtTime(inst.lastSeen)"></span></td>
+              <td><button class="btn btn-muted" style="font-size:10px">Snapshot</button></td>
+            </tr>
+          </template>
+          <tr x-show="sagaInstances.length===0">
+            <td colspan="5" style="color:var(--muted)">No active instances</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="dot dot-purple"></span>State distribution (live)</div>
+      <canvas id="sagaChart" height="140"></canvas>
+      <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn btn-blue" @click="window.location='/masslens/saga/export?format=csv'">Export CSV</button>
+        <button class="btn btn-muted" @click="window.location='/masslens/saga/export?format=json'">Export JSON</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     TAB: TIMELINE
+════════════════════════════════════════════════════ -->
+<div class="page" :class="tab==='timeline'?'active':''">
+  <div class="g2 mb">
+    <div class="card" style="grid-column:1/-1">
+      <div class="section-header">
+        <div class="card-title" style="margin-bottom:0"><span class="dot dot-cyan"></span>Message Timeline — Flame Graph</div>
+        <div class="section-actions">
+          <select x-model="traceCorrelationId" @change="loadTrace()"
+                  class="search-input" style="width:280px">
+            <option value="">— select CorrelationId —</option>
+            <template x-for="id in recentCorrelationIds" :key="id">
+              <option :value="id" x-text="id"></option>
+            </template>
+          </select>
+          <button class="btn btn-blue" @click="loadTrace()">Trace</button>
+        </div>
+      </div>
+      <div x-show="traceEntries.length === 0" style="padding:24px;text-align:center;color:var(--muted);font-size:11px">
+        Select a CorrelationId above to see the flame graph. The list refreshes automatically.
+      </div>
+      <div x-show="traceEntries.length > 0" style="margin-top:14px">
+        <div style="font-size:10px;color:var(--muted);margin-bottom:8px">
+          Total: <span class="c-cyan" x-text="traceTotalMs + 'ms'"></span>
+          &nbsp;·&nbsp; <span x-text="traceEntries.length"></span> messages
+          &nbsp;·&nbsp; CorrelationId: <span class="mono c-cyan" x-text="traceCorrelationId"></span>
+        </div>
+        <div class="flame">
+          <template x-for="(e, i) in traceEntries" :key="i">
+            <div class="flame-row">
+              <span class="flame-label" x-text="(e.direction === 'Consumed' || e.direction === 'Faulted' ? '' : '↳ ') + e.messageType"></span>
+              <div class="flame-track">
+                <div class="flame-bar"
+                     :class="e.faulted ? 'flame-child2' : i===0 ? 'flame-root' : i%4===1 ? 'flame-child1' : i%4===2 ? 'flame-child3' : 'flame-child4'"
+                     :style="'left:'+e.offsetPct+'%;width:'+Math.max(e.widthPct,2)+'%'"
+                     x-text="e.durationMs + 'ms'">
+                </div>
+              </div>
+              <span :class="e.faulted?'c-red':e.durationMs>200?'c-yellow':''" style="font-size:10px;width:55px;text-align:right" x-text="e.durationMs+'ms'"></span>
+            </div>
+          </template>
+        </div>
+        <div x-show="traceEntries.some(e=>e.faulted)" style="font-size:10px;color:var(--red-text);margin-top:8px">
+          ⚠ One or more messages faulted in this correlation chain.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="g2">
+    <div class="card">
+      <div class="card-title"><span class="dot dot-yellow"></span>Retry Waterfall</div>
+      <div x-show="retryEntries.length === 0" style="color:var(--muted);font-size:11px;padding:8px 0">
+        No retries observed for this CorrelationId.
+      </div>
+      <div class="waterfall">
+        <template x-for="(e, i) in retryEntries" :key="i">
+          <div class="wf-row">
+            <span class="wf-num" x-text="'#'+(i+1)"></span>
+            <span class="wf-time" x-text="fmtTime(e.timestamp)"></span>
+            <div class="wf-bar-wrap">
+              <div class="wf-bar" :class="e.faulted?'wf-fail':'wf-ok'" style="width:35%" x-text="e.faulted?'FAIL':'✓ OK'"></div>
+            </div>
+            <span class="wf-delay" :class="e.faulted?'':'c-green-text'" x-text="e.durationMs+'ms'"></span>
+          </div>
+        </template>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><span class="dot dot-blue"></span>Message Detail</div>
+      <div x-show="!selectedTraceEntry" style="color:var(--muted);font-size:11px;padding:8px 0">Click a row in the flame graph to see details.</div>
+      <div x-show="selectedTraceEntry" style="display:flex;flex-direction:column;gap:8px;font-size:11px">
+        <div style="display:flex;justify-content:space-between"><span class="c-muted">Type</span><span class="mono c-blue" x-text="selectedTraceEntry?.messageType"></span></div>
+        <div style="display:flex;justify-content:space-between"><span class="c-muted">Direction</span><span class="mono" x-text="selectedTraceEntry?.direction"></span></div>
+        <div style="display:flex;justify-content:space-between"><span class="c-muted">Duration</span><span :class="(selectedTraceEntry?.durationMs??0)>200?'c-yellow':'c-green'" x-text="(selectedTraceEntry?.durationMs??0)+'ms'"></span></div>
+        <div style="display:flex;justify-content:space-between"><span class="c-muted">Size</span><span x-text="selectedTraceEntry?.sizeBytes > 0 ? Math.round(selectedTraceEntry.sizeBytes/1024*10)/10+'KB' : '—'"></span></div>
+        <div style="display:flex;justify-content:space-between"><span class="c-muted">Timestamp</span><span style="color:var(--dim)" x-text="fmtTime(selectedTraceEntry?.timestamp)"></span></div>
+        <div x-show="selectedTraceEntry?.faulted" style="background:var(--red-dim);border-radius:6px;padding:8px;font-size:10px;color:var(--red-text);margin-top:4px">
+          <div x-text="selectedTraceEntry?.exceptionType"></div>
+          <div style="margin-top:4px;color:var(--muted)" x-text="selectedTraceEntry?.exceptionMessage"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════
+     TAB: TOPOLOGY
+════════════════════════════════════════════════════ -->
+<div class="page" :class="tab==='topology'?'active':''">
+  <div class="card mb">
+    <div class="card-title"><span class="dot dot-blue"></span>Topology Map — Publisher → Consumer (auto-generated)
+      <span class="status-live" style="margin-left:auto">live</span>
+    </div>
+    <div class="topo-legend">
+      <div class="topo-leg-item"><div class="topo-leg-dot" style="background:#3b82f6"></div>Publisher</div>
+      <div class="topo-leg-item"><div class="topo-leg-dot" style="background:#22c55e"></div>Consumer</div>
+      <div class="topo-leg-item"><div class="topo-leg-dot" style="background:#8b5cf6"></div>Saga</div>
+    </div>
+    <div class="topo" id="topoContainer">
+      <svg class="topo-svg" id="topoSvg"></svg>
+      <template x-for="(n, i) in topoConsumers" :key="n.name">
+        <div class="topo-node topo-con"
+             :id="'tcon-'+i"
+             :style="'top:' + (30 + i*65) + 'px;left:270px;position:absolute'"
+             x-text="'📥 ' + n.name.replace('Consumer','')"></div>
+      </template>
+      <template x-for="(s, i) in topoSagas" :key="s.name">
+        <div class="topo-node topo-saga"
+             :style="'top:' + (50 + i*65) + 'px;left:530px;position:absolute'"
+             x-text="'🔄 ' + s.name"></div>
+      </template>
+      <div x-show="topoConsumers.length === 0" style="padding:40px;text-align:center;color:var(--muted);font-size:11px">
+        Topology will populate once messages start flowing.
+      </div>
+    </div>
+  </div>
+
+  <div class="g3">
+    <div class="card">
+      <div class="card-title"><span class="dot dot-green"></span>Top Consumers</div>
+      <table class="ctable">
+        <thead><tr><th>Consumer</th><th>Score</th><th>Rate</th></tr></thead>
+        <tbody>
+          <template x-for="c in consumers.slice().sort((a,b)=>b.rate-a.rate).slice(0,5)" :key="c.name">
+            <tr>
+              <td><span class="mono c-green" style="font-size:10px" x-text="c.name"></span></td>
+              <td><span class="pill" :class="c.score>=80?'pill-green':c.score>=50?'pill-yellow':'pill-red'" x-text="c.score"></span></td>
+              <td><span :class="c.rate>40?'c-yellow':c.rate>10?'c-green':''" x-text="c.rate+'/s'"></span></td>
+            </tr>
+          </template>
+        </tbody>
+      </table>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="dot dot-purple"></span>Active Sagas</div>
+      <table class="ctable">
+        <thead><tr><th>Saga</th><th>Active</th><th>Completed</th><th>Fault%</th></tr></thead>
+        <tbody>
+          <template x-for="s in sagaList" :key="s.name">
+            <tr>
+              <td><span class="mono c-purple" style="font-size:10px" x-text="s.name"></span></td>
+              <td x-text="s.active"></td>
+              <td x-text="s.completed"></td>
+              <td><span :class="s.faultPct>5?'c-red':s.faultPct>1?'c-yellow':'c-green'" x-text="s.faultPct.toFixed(1)+'%'"></span></td>
+            </tr>
+          </template>
+          <tr x-show="sagaList.length===0"><td colspan="4" style="color:var(--muted)">No sagas observed yet</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     TAB: ANALYTICS
+════════════════════════════════════════════════════ -->
+<div class="page" :class="tab==='analytics'?'active':''">
+  <div class="g2 mb">
+    <!-- Heatmap -->
+    <div class="card">
+      <div class="card-title"><span class="dot dot-yellow"></span>Heatmap Hours × Consumer</div>
+      <div class="heatmap">
+        <table>
+          <thead>
+            <tr>
+              <th></th>
+              <template x-for="h in heatmapHours">
+                <th x-text="h"></th>
+              </template>
+            </tr>
+          </thead>
+          <tbody>
+            <template x-for="row in heatmapData">
+              <tr>
+                <td class="row-label" x-text="row.name"></td>
+                <template x-for="val in row.vals">
+                  <td :class="'h'+val" :title="val*20+'% load'"></td>
+                </template>
+              </tr>
+            </template>
+          </tbody>
+        </table>
+      </div>
+      <div style="display:flex;gap:6px;align-items:center;margin-top:8px;font-size:10px;color:var(--dim)">
+        Intensity:
+        <div style="width:12px;height:12px;border-radius:2px" class="h0"></div> low
+        <div style="width:12px;height:12px;border-radius:2px" class="h3"></div> medium
+        <div style="width:12px;height:12px;border-radius:2px" class="h5"></div> high
+      </div>
+    </div>
+
+    <!-- Message Size Distribution -->
+    <div class="card">
+      <div class="card-title"><span class="dot dot-cyan"></span>Message Size Distribution</div>
+      <div style="display:flex;align-items:flex-end;gap:6px;height:100px;padding-bottom:4px">
+        <template x-for="b in sizeBuckets" :key="b.label">
+          <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px">
+            <span style="font-size:9px" :style="'color:'+b.color" x-text="b.pct+'%'"></span>
+            <div style="width:100%;border-radius:3px 3px 0 0;transition:height .5s"
+                 :style="'height:'+b.pct+'px;background:'+b.color+'22;border:1px solid '+b.color+'33'"></div>
+            <span style="font-size:9px;color:var(--dim)" x-text="b.label"></span>
+          </div>
+        </template>
+      </div>
+      <div x-show="sizeBuckets[3]?.pct > 0" style="font-size:10px;color:var(--yellow-text);margin-top:6px"
+           x-text="'⚠️ ' + sizeBuckets[3].pct + '% messages >100KB — potential bottleneck'"></div>
+    </div>
+  </div>
+
+  <div class="g2">
+    <!-- Top consumers by P95 -->
+    <div class="card">
+      <div class="card-title"><span class="dot dot-red"></span>Top 10 Slowest Consumers (P95)</div>
+      <table class="ctable">
+        <thead><tr><th>#</th><th>Consumer</th><th>P95</th></tr></thead>
+        <tbody>
+          <template x-for="(c, i) in consumers.slice().sort((a,b)=>b.p95-a.p95).slice(0,10)" :key="c.name">
+            <tr>
+              <td :class="i===0?'c-red':i===1?'c-yellow':''" x-text="i+1"></td>
+              <td><span class="mono" style="font-size:10px" x-text="c.name"></span></td>
+              <td><span :class="c.p95>300?'c-red':c.p95>100?'c-yellow':'c-green'" x-text="c.p95+'ms'"></span></td>
+            </tr>
+          </template>
+          <tr x-show="consumers.length===0"><td colspan="3" style="color:var(--muted)">No data yet</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Top message types by volume -->
+    <div class="card">
+      <div class="card-title"><span class="dot dot-purple"></span>Top 10 Message Types by Volume</div>
+      <table class="ctable">
+        <thead><tr><th>#</th><th>Type</th><th>Total</th><th>%</th></tr></thead>
+        <tbody>
+          <template x-for="(c, i) in consumers.slice().sort((a,b)=>b.rate-a.rate).slice(0,10)" :key="c.name">
+            <tr>
+              <td x-text="i+1"></td>
+              <td><span class="mono c-blue" style="font-size:10px" x-text="c.name"></span></td>
+              <td x-text="fmtNum(c.totalConsumed ?? 0)"></td>
+              <td>
+                <div class="mini-bar-wrap">
+                  <div class="mini-bar" :style="'width:'+Math.min(100, Math.round(c.rate / Math.max(...consumers.map(x=>x.rate),1) * 100))+'%'"></div>
+                </div>
+              </td>
+            </tr>
+          </template>
+          <tr x-show="consumers.length===0"><td colspan="4" style="color:var(--muted)">No data yet</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+
+<!-- FOOTER -->
+<div style="text-align:center;padding:16px 20px;border-top:1px solid var(--border);margin-top:8px;font-size:10px;color:var(--dim)">
+  MassLens — embedded dashboard for MassTransit &nbsp;·&nbsp;
+  Developed by <a href="https://github.com/N0T-A-NUMB3R" target="_blank" rel="noopener"
+     style="color:var(--blue-text);text-decoration:none">
+    Fabio Nan
+  </a>
+</div>
+
+<script>
+// Chart instances stored outside Alpine's reactive proxy — Chart.js requires plain JS objects
+const _charts = {};
+
+function dashboard() {
+  return {
+    tab: 'overview',
+    darkMode: true,
+    sseConnected: false,
+    msgPerSec: 0,
+    totalConsumed: 0,
+    totalPublished: 0,
+    totalSent: 0,
+    totalFailed: 0,
+    busInstances: 0,
+    selectedSaga: null,
+    lat: { avg: 0, p50: 0, p95: 0, p99: 0 },
+    saga: {},
+    throughputHistory: Array(60).fill(0),
+    failHistory: Array(60).fill(0),
+    errorRateHistory: Array(60).fill(0),
+    errorRateCurrent: 0,
+    consumers: [],
+    heatmapHours: ['00','01','02','03','04','05','06','07','08','09','10','11','12','13','14','15','16','17','18','19','20','21','22','23'],
+    heatmapData: [],
+    sizeBuckets: [
+      { label: '<1KB',     pct: 0, color: 'var(--blue)' },
+      { label: '1-10KB',   pct: 0, color: 'var(--blue)' },
+      { label: '10-100KB', pct: 0, color: 'var(--yellow)' },
+      { label: '>100KB',   pct: 0, color: 'var(--red)' },
+    ],
+    sagaList: [],
+    sagaInstances: [],
+    topoConsumers: [],
+    topoSagas: [],
+    injectType: '',
+    injectPayload: '',
+    injectResult: '',
+    traceCorrelationId: '',
+    traceEntries: [],
+    traceTotalMs: 0,
+    retryEntries: [],
+    recentCorrelationIds: [],
+    selectedTraceEntry: null,
+
+    fmtTime(ts) {
+      if (!ts) return '';
+      const d = new Date(ts);
+      return d.toLocaleTimeString('en-GB', { hour:'2-digit', minute:'2-digit', second:'2-digit' });
+    },
+
+    fmtNum(n) {
+      if (n >= 1_000_000) return (n / 1_000_000).toFixed(1) + 'M';
+      if (n >= 1_000)     return (n / 1_000).toFixed(1) + 'K';
+      return String(n);
+    },
+
+
+    async loadTrace() {
+      if (!this.traceCorrelationId) return;
+      const res = await fetch('/masslens/trace?correlationId=' + encodeURIComponent(this.traceCorrelationId));
+      if (!res.ok) { this.traceEntries = []; return; }
+      const data = await res.json();
+      this.traceEntries = data.entries ?? [];
+      this.traceTotalMs = data.totalMs ?? 0;
+      this.retryEntries = this.traceEntries.filter(e => e.direction === 'Consumed' || e.direction === 'Faulted');
+      this.selectedTraceEntry = null;
+    },
+
+    async refreshRecentCorrelationIds() {
+      const res = await fetch('/masslens/trace');
+      if (!res.ok) return;
+      this.recentCorrelationIds = await res.json();
+      // auto-load the most recent trace if none selected yet
+      if (!this.traceCorrelationId && this.recentCorrelationIds.length > 0) {
+        this.traceCorrelationId = this.recentCorrelationIds[0];
+        await this.loadTrace();
+      }
+    },
+
+    async injectMessage() {
+      if (!this.injectType) { this.injectResult = 'Type is required.'; return; }
+      let payload;
+      try { payload = JSON.parse(this.injectPayload || '{}'); } catch { this.injectResult = 'Invalid JSON payload.'; return; }
+      const res = await fetch('/masslens/inject', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ messageType: this.injectType, payload })
+      });
+      this.injectResult = res.ok ? '✓ Message injected' : '✗ Failed: ' + await res.text();
+    },
+
+    drawTopology() {
+      const svg = document.getElementById('topoSvg');
+      if (!svg) return;
+      svg.innerHTML = '';
+      const container = document.getElementById('topoContainer');
+      const needed = Math.max(220, 60 + this.topoConsumers.length * 65);
+      container.style.height = needed + 'px';
+      svg.setAttribute('height', needed);
+      const busX = 80, busY = Math.round(needed / 2);
+      this.topoConsumers.forEach((n, i) => {
+        const el = document.getElementById('tcon-' + i);
+        if (!el) return;
+        const r = el.getBoundingClientRect();
+        const cr = container.getBoundingClientRect();
+        const tx = r.left - cr.left + r.width / 2;
+        const ty = r.top  - cr.top  + r.height / 2;
+        const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+        line.setAttribute('x1', busX); line.setAttribute('y1', busY);
+        line.setAttribute('x2', tx);   line.setAttribute('y2', ty);
+        line.setAttribute('stroke', '#3b82f644');
+        line.setAttribute('stroke-width', '1.5');
+        line.setAttribute('stroke-dasharray', '4 3');
+        svg.appendChild(line);
+      });
+      const txt = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+      txt.setAttribute('x', busX); txt.setAttribute('y', busY - 16);
+      txt.setAttribute('text-anchor', 'middle');
+      txt.setAttribute('fill', '#8b949e'); txt.setAttribute('font-size', '9');
+      txt.textContent = 'MassTransit Bus';
+      svg.appendChild(txt);
+      const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+      circle.setAttribute('cx', busX); circle.setAttribute('cy', busY);
+      circle.setAttribute('r', '18');
+      circle.setAttribute('fill', '#1d3a5f'); circle.setAttribute('stroke', '#3b82f644');
+      svg.appendChild(circle);
+    },
+
+    init() {
+      // Use setTimeout to guarantee DOM is fully rendered with correct dimensions
+      setTimeout(() => {
+        this.initCharts();
+        this.startLiveUpdates();
+      }, 50);
+      this.refreshRecentCorrelationIds();
+      setInterval(() => this.refreshRecentCorrelationIds(), 5000);
+      this.$watch('tab', val => {
+        if (val === 'topology') this.$nextTick(() => this.drawTopology());
+        if (val === 'timeline') this.refreshRecentCorrelationIds();
+      });
+    },
+
+    initCharts() {
+      const co = { responsive:true, animation:false, plugins:{legend:{display:false}}, scales:{x:{display:false},y:{display:true,grid:{color:'#21262d'},ticks:{color:'#6e7681',font:{size:10}}}} };
+
+      // Throughput
+      const tCtx = document.getElementById('throughputChart');
+      if (tCtx) {
+        _charts.throughput = new Chart(tCtx, {
+          type:'line',
+          data:{
+            labels: Array(60).fill(''),
+            datasets:[
+              {data:[...this.throughputHistory],borderColor:'#3b82f6',backgroundColor:'rgba(59,130,246,0.07)',borderWidth:2,pointRadius:0,fill:true,tension:.4,label:'Consumed'},
+              {data:[...this.failHistory],borderColor:'#ef4444',backgroundColor:'rgba(239,68,68,0.05)',borderWidth:1.5,pointRadius:0,fill:true,tension:.4,borderDash:[4,4],label:'Failed'},
+            ]
+          },
+          options: co
+        });
+      }
+
+      // Error Rate %
+      const erCtx = document.getElementById('errorRateChart');
+      if (erCtx) {
+        _charts.errorRate = new Chart(erCtx, {
+          type: 'line',
+          data: {
+            labels: Array(60).fill(''),
+            datasets: [{
+              data: [...this.errorRateHistory],
+              borderColor: '#ef4444',
+              backgroundColor: 'rgba(239,68,68,0.10)',
+              borderWidth: 2,
+              pointRadius: 0,
+              fill: true,
+              tension: .4,
+              label: 'Error %'
+            }]
+          },
+          options: {
+            responsive: true,
+            animation: false,
+            plugins: { legend: { display: false } },
+            scales: {
+              x: { display: false },
+              y: {
+                display: true,
+                min: 0,
+                suggestedMax: 5,
+                grid: { color: '#21262d' },
+                ticks: {
+                  color: '#6e7681',
+                  font: { size: 10 },
+                  callback: v => v + '%'
+                }
+              }
+            }
+          }
+        });
+      }
+
+      // Status doughnut — initialized with placeholder so Chart.js doesn't break on all-zeros
+      const sCtx = document.getElementById('statusChart');
+      if (sCtx) {
+        _charts.status = new Chart(sCtx, {
+          type:'doughnut',
+          data:{labels:['Consumed','Failed'],datasets:[{data:[1,0],backgroundColor:['#22c55e','#ef4444','#f59e0b','#8b5cf6'],borderWidth:0,hoverOffset:4}]},
+          options:{responsive:true,animation:{duration:400},plugins:{legend:{display:true,position:'right',labels:{color:'#8b949e',font:{size:10},boxWidth:10,padding:6}}}}
+        });
+      }
+
+      // Predictor
+      const pCtx = document.getElementById('predictorChart');
+      if (pCtx) {
+        _charts.predictor = new Chart(pCtx, {
+          type:'line',
+          data:{
+            labels: Array(30).fill(''),
+            datasets:[
+              {data:Array(30).fill(null),borderColor:'#3b82f6',backgroundColor:'rgba(59,130,246,0.07)',borderWidth:2,pointRadius:0,fill:true,tension:.4},
+              {data:Array(30).fill(null),borderColor:'#f59e0b',backgroundColor:'rgba(245,158,11,0.07)',borderWidth:1.5,pointRadius:0,fill:true,tension:.4,borderDash:[5,4]},
+            ]
+          },
+          options:{...co,plugins:{legend:{display:false},tooltip:{enabled:false}}}
+        });
+      }
+
+      // Saga doughnut
+      const sagaCtx = document.getElementById('sagaChart');
+      if (sagaCtx) {
+        _charts.saga = new Chart(sagaCtx, {
+          type:'doughnut',
+          data:{
+            labels:[],
+            datasets:[{data:[],backgroundColor:['#3b82f6','#f59e0b','#06b6d4','#22c55e','#ef4444','#8b5cf6'],borderWidth:0,hoverOffset:4}]
+          },
+          options:{responsive:true,animation:{duration:600},plugins:{legend:{display:true,position:'right',labels:{color:'#8b949e',font:{size:10},boxWidth:10,padding:5}}}}
+        });
+      }
+    },
+
+    startLiveUpdates() {
+      const es = new EventSource('/masslens/stream');
+      es.onopen = () => { this.sseConnected = true; };
+      es.onerror = () => { this.sseConnected = false; };
+      es.onmessage = (e) => {
+        try {
+          const d = JSON.parse(e.data);
+          this.applySnapshot(d);
+        } catch(err) {
+          console.error('[MassLens] SSE parse/apply error:', err);
+        }
+      };
+    },
+
+    applySnapshot(d) {
+      const prevConsumed = this.totalConsumed;
+      const prevFaulted  = this.totalFailed;
+      this.totalConsumed  = d.totalConsumed  ?? this.totalConsumed;
+      this.totalPublished = d.totalPublished ?? this.totalPublished;
+      this.totalSent      = d.totalSent      ?? this.totalSent;
+      this.totalFailed    = d.totalFaulted   ?? this.totalFailed;
+      this.msgPerSec      = Math.round(d.globalThroughput ?? 0);
+
+      // throughput chart — delta per tick so the line shows real variation
+      const deltaC = prevConsumed > 0 ? Math.max(0, this.totalConsumed - prevConsumed) : 0;
+      const deltaF = prevFaulted  > 0 ? Math.max(0, this.totalFailed  - prevFaulted)  : 0;
+
+      if (_charts.throughput) {
+        this.throughputHistory.push(deltaC);  this.throughputHistory.shift();
+        this.failHistory.push(deltaF);        this.failHistory.shift();
+        _charts.throughput.data.datasets[0].data = [...this.throughputHistory];
+        _charts.throughput.data.datasets[1].data = [...this.failHistory];
+        _charts.throughput.update('none');
+      }
+
+      // error rate chart
+      const rate = deltaC > 0 ? Math.min(100, deltaF / deltaC * 100) : 0;
+      this.errorRateCurrent = rate;
+      if (_charts.errorRate) {
+        this.errorRateHistory.push(parseFloat(rate.toFixed(2)));
+        this.errorRateHistory.shift();
+        _charts.errorRate.data.datasets[0].data = [...this.errorRateHistory];
+        _charts.errorRate.update('none');
+      }
+
+      if (d.consumers && d.consumers.length) {
+        this.consumers = d.consumers.map(c => ({
+          name:         c.consumerType,
+          load:         Math.min(99, Math.round(c.throughputPerSec * 1.2)),
+          rate:         Math.round(c.throughputPerSec),
+          p95:          Math.round(c.latency?.p95 ?? 0),
+          score:        c.healthScore,
+          instances:    c.currentConcurrent || 1,
+          totalConsumed: c.totalConsumed ?? 0,
+        }));
+
+        // status doughnut — consumed vs faulted
+        if (_charts.status) {
+          const totalC  = d.consumers.reduce((s, c) => s + Number(c.totalConsumed), 0);
+          const totalF  = d.consumers.reduce((s, c) => s + Number(c.totalFaulted), 0);
+          const healthy = Math.max(1, totalC - totalF);
+          const chart = _charts.status;
+          chart.data.labels = ['Consumed', 'Faulted'];
+          chart.data.datasets[0].data = [healthy, totalF];
+          chart.update('active');
+        }
+
+        // latency — aggregate weighted average across all consumers with samples
+        const withSamples = d.consumers.filter(c => (c.latency?.sampleCount ?? 0) > 0);
+        if (withSamples.length > 0) {
+          const worst = withSamples.slice().sort((a,b) => (b.latency?.p95??0) - (a.latency?.p95??0))[0];
+          this.lat = {
+            avg: Math.round(worst.latency.average ?? 0),
+            p50: Math.round(worst.latency.p50 ?? 0),
+            p95: Math.round(worst.latency.p95 ?? 0),
+            p99: Math.round(worst.latency.p99 ?? 0),
+          };
+        }
+      }
+
+
+      if (d.sagas?.length) {
+        const first = d.sagas[0];
+        const states = Object.entries(first.stateCounts ?? {});
+        if (_charts.saga && states.length) {
+          _charts.saga.data.labels   = states.map(([k]) => k);
+          _charts.saga.data.datasets[0].data = states.map(([,v]) => v);
+          _charts.saga.update();
+        }
+        this.saga = {};
+        for (const [k, v] of states) {
+          this.saga[k] = v;
+        }
+
+        this.sagaList = d.sagas.map(s => {
+          const total = (s.totalTransitions ?? 0);
+          const faulted = s.totalFaulted ?? 0;
+          const active  = Object.values(s.stateCounts ?? {}).reduce((a, b) => a + b, 0);
+          return {
+            name: s.name,
+            active,
+            completed: s.totalCompleted ?? 0,
+            faultPct: total > 0 ? (faulted / total) * 100 : 0
+          };
+        });
+
+        this.topoSagas = d.sagas.map(s => ({ name: s.name }));
+      }
+
+      if (d.predictor) {
+        const hist = d.predictor.historical ?? [];
+        const pred = d.predictor.predicted  ?? [];
+        if (_charts.predictor && (hist.length || pred.length)) {
+          const shown = hist.slice(-20);
+          const pShown = pred.slice(0, 10);
+          _charts.predictor.data.datasets[0].data = [...shown, ...Array(pShown.length).fill(null)];
+          _charts.predictor.data.datasets[1].data = [...Array(shown.length).fill(null), ...pShown];
+          _charts.predictor.update('none');
+        }
+      }
+
+      if (d.heatmap?.rows?.length) {
+        this.heatmapData = d.heatmap.rows.map(r => ({
+          name: r.consumerName,
+          vals: r.hourlyLoad
+        }));
+      }
+
+      if (d.consumers?.length) {
+        this.topoConsumers = d.consumers.map(c => ({
+          name: c.consumerType,
+          score: c.healthScore,
+          rate: Math.round(c.throughputPerSec)
+        }));
+        if (this.tab === 'topology') this.$nextTick(() => this.drawTopology());
+
+        const b = [0,0,0,0];
+        for (const c of d.consumers) {
+          b[0] += c.sizeUnder1K   ?? 0;
+          b[1] += c.size1Kto10K   ?? 0;
+          b[2] += c.size10Kto100K ?? 0;
+          b[3] += c.sizeOver100K  ?? 0;
+        }
+        const total = b.reduce((a,x)=>a+x,0) || 1;
+        this.sizeBuckets = [
+          { label: '<1KB',     pct: Math.round(b[0]/total*100), color: 'var(--blue)' },
+          { label: '1-10KB',   pct: Math.round(b[1]/total*100), color: 'var(--blue)' },
+          { label: '10-100KB', pct: Math.round(b[2]/total*100), color: 'var(--yellow)' },
+          { label: '>100KB',   pct: Math.round(b[3]/total*100), color: 'var(--red)' },
+        ];
+      }
+
+      if (d.sagas?.length) {
+        this.sagaInstances = d.sagas.flatMap(s =>
+          (s.activeInstances ?? []).map(inst => ({
+            correlationId: inst.correlationId,
+            state: inst.state,
+            sagaName: s.name,
+            lastSeen: inst.updatedAt
+          }))
+        );
+      }
+
+      this.$nextTick(() => this.drawTopology());
+    },
+
+    async exportSnapshot() {
+      const res  = await fetch('/masslens/snapshot');
+      const data = await res.json();
+      const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+      const url  = URL.createObjectURL(blob);
+      const a    = document.createElement('a');
+      a.href     = url;
+      a.download = `masslens-snapshot-${new Date().toISOString().replace(/[:.]/g,'-')}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+  }
+}
+</script>
+</body>
+</html>

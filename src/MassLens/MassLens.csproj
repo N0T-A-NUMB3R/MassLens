@@ -1,0 +1,49 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <RootNamespace>MassLens</RootNamespace>
+    <AssemblyName>MassLens</AssemblyName>
+
+    <PackageId>MassLens</PackageId>
+    <Version>1.0.0</Version>
+    <Authors>MassLens Contributors</Authors>
+    <Copyright>Copyright © 2025 MassLens Contributors</Copyright>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/your-org/masslens</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/your-org/masslens</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <Description>Embedded real-time dashboard for MassTransit v8. Zero external dependencies. Add two lines to Program.cs and get a full monitoring UI at /masslens.</Description>
+    <PackageTags>masstransit;dashboard;monitoring;rabbitmq;azureservicebus;messaging;observability</PackageTags>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageIcon>icon.png</PackageIcon>
+    <PackageReleaseNotes>Initial release.</PackageReleaseNotes>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\dashboard.html" />
+    <EmbeddedResource Include="Resources\logo.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleTo">
+      <_Parameter1>MassLens.Tests</_Parameter1>
+    </AssemblyAttribute>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\..\README.md" Pack="true" PackagePath="\" />
+    <None Include="..\..\icon.png" Pack="true" PackagePath="\" Condition="Exists('..\..\icon.png')" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="MassTransit" Version="8.*" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,30 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <RootNamespace>MassLens.RabbitMQ</RootNamespace>
+    <AssemblyName>MassLens.RabbitMQ</AssemblyName>
+
+    <PackageId>MassLens.RabbitMQ</PackageId>
+    <Description>RabbitMQ transport plugin for MassLens — real DLQ requeue via the RabbitMQ Management API.</Description>
+    <PackageTags>masstransit;rabbitmq;dlq;requeue;dashboard;monitoring</PackageTags>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="..\..\README.md" Pack="true" PackagePath="\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\MassLens\MassLens.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="MassTransit.RabbitMQ" Version="8.*" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+
+</Project>
