@@ -6,12 +6,18 @@
 [![License: MIT](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 [![.NET](https://img.shields.io/badge/.NET-8%2B-512BD4&logo=dotnet)](https://dotnet.microsoft.com)
 [![MassTransit](https://img.shields.io/badge/MassTransit-8.x-purple)](https://masstransit.io)
+<img width="1408" height="768" alt="Gemini_Generated_Image_lof73blof73blof7" src="https://github.com/user-attachments/assets/ecd4ac8e-4d2e-45d9-a7c9-df703644fdd2" />
 
 **The missing dashboard for MassTransit. Zero dependencies. A few lines of code. Full visibility.**
 
 MassLens is an embedded real-time monitoring dashboard for MassTransit v8 applications. It ships as a single NuGet package — no Redis, no SQL Server, no external services required.
 
 ---
+<img width="1890" height="903" alt="image" src="https://github.com/user-attachments/assets/a0c45748-8c6f-42dc-86cf-d6d77c01d52c" />
+<img width="1902" height="901" alt="image" src="https://github.com/user-attachments/assets/23ba7882-caad-45a3-914c-44c853dde614" />
+
+
+
 
 ## Quick Start
 
