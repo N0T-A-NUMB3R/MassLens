@@ -10,7 +10,7 @@
 
 **The missing dashboard for MassTransit. Zero dependencies. A few lines of code. Full visibility.**
 
-MassLens is an embedded real-time monitoring dashboard for MassTransit v8 applications. It ships as a single NuGet package — no Redis, no SQL Server, no external services required.
+MassLens is an embedded real-time monitoring dashboard for MassTransit v8 applications. It ships as a single NuGet package — no Redis, no SQL Server, no external services required. Tested with RabbitMQ.
 
 ---
 <img width="1890" height="903" alt="image" src="https://github.com/user-attachments/assets/a0c45748-8c6f-42dc-86cf-d6d77c01d52c" />
