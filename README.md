@@ -8,9 +8,12 @@
 
 **The missing dashboard for MassTransit. Zero dependencies. A few lines of code. Full visibility.**
 
-MassLens is an embedded real-time monitoring dashboard for MassTransit v8 applications. If your app exchanges messages through a broker — RabbitMQ, Azure Service Bus, Amazon SQS — MassLens gives you a live view of what is flowing through your queues: throughput, latency, faults, saga state transitions, and the full message chain, all in one place.
+MassTransit is a beast, but flying it in production can feel like navigating a dark room with a broken toe. We have logs and Prometheus, but where’s that "Hangfire-style" dashboard when you need a quick sanity check?
+I know, I know—MassTransit v9 is bringing an official dashboard to the party soon. But I couldn't wait, and I wanted something that felt like a "drop-in" utility for my existing v8 projects.
+So, I built MassLens: an embedded, real-time monitoring dashboard that lives right inside your application.
 
-It ships as a single NuGet package with no external dependencies — no Redis, no SQL Server, no sidecar agents. Add two lines to `Program.cs`, open `/masslens`, and you have a real-time dashboard embedded directly in your application. Tested with RabbitMQ.
+MassLens ships as a single NuGet package with no external dependencies. No need to spin up a database or configure a sidecar just to see your own data. It hooks into your pipeline and serves a sleek UI directly from your application.
+Whether you're using RabbitMQ, Azure Service Bus, or Amazon SQS, MassLens gives you a front-row seat to throughput, latency, faults, and the full message chain. (Tested extensively with RabbitMQ!).
 
 ---
 <img width="1890" height="903" alt="image" src="https://github.com/user-attachments/assets/a0c45748-8c6f-42dc-86cf-d6d77c01d52c" />
